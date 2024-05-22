@@ -742,100 +742,104 @@ HAL_StatusTypeDef HAL_Custom_RCC_PLLConfig(RCC_OscInitTypeDef *RCC_OscInitStruct
 	assert_param(IS_RCC_PLL(RCC_OscInitStruct->PLL.PLLState));
 
 	sysclk_source = __HAL_RCC_GET_SYSCLK_SOURCE();
-	pll_config = __HAL_RCC_GET_PLL_OSCSOURCE();
 
-	if (RCC_OscInitStruct->PLL.PLLState != RCC_PLL_NONE) {
-		/* PLL On ? */
-		if (RCC_OscInitStruct->PLL.PLLState == RCC_PLL_ON) {
-			/* Check the parameters */
-			assert_param(IS_RCC_PLLSOURCE(RCC_OscInitStruct->PLL.PLLSource));
-			assert_param(IS_RCC_PLLM_VALUE(RCC_OscInitStruct->PLL.PLLM));
-			assert_param(IS_RCC_PLLN_VALUE(RCC_OscInitStruct->PLL.PLLN));
-#if defined(RCC_PLLP_SUPPORT)
-			assert_param(IS_RCC_PLLP_VALUE(RCC_OscInitStruct->PLL.PLLP));
-#endif /* RCC_PLLP_SUPPORT */
-			assert_param(IS_RCC_PLLQ_VALUE(RCC_OscInitStruct->PLL.PLLQ));
-			assert_param(IS_RCC_PLLR_VALUE(RCC_OscInitStruct->PLL.PLLR));
+	if (RCC_OscInitStruct->PLL.PLLState == RCC_PLL_NONE) {
+		return HAL_OK;
+	}
 
-			/* Do nothing if PLL configuration is unchanged */
-			pll_config = RCC->PLLCFGR;
-			if((READ_BIT(pll_config, RCC_PLLCFGR_PLLSRC) != RCC_OscInitStruct->PLL.PLLSource) ||
-					(READ_BIT(pll_config, RCC_PLLCFGR_PLLM) != ((RCC_OscInitStruct->PLL.PLLM - 1U) << RCC_PLLCFGR_PLLM_Pos)) ||
-					(READ_BIT(pll_config, RCC_PLLCFGR_PLLN) != (RCC_OscInitStruct->PLL.PLLN << RCC_PLLCFGR_PLLN_Pos)) ||
+	/* PLL On ? */
+	if (RCC_OscInitStruct->PLL.PLLState == RCC_PLL_ON) {
+		/* Check the parameters */
+		assert_param(IS_RCC_PLLSOURCE(RCC_OscInitStruct->PLL.PLLSource));
+		assert_param(IS_RCC_PLLM_VALUE(RCC_OscInitStruct->PLL.PLLM));
+		assert_param(IS_RCC_PLLN_VALUE(RCC_OscInitStruct->PLL.PLLN));
 #if defined(RCC_PLLP_SUPPORT)
-  #if defined(RCC_PLLP_DIV_2_31_SUPPORT)
-					(READ_BIT(pll_config, RCC_PLLCFGR_PLLPDIV) != (RCC_OscInitStruct->PLL.PLLP << RCC_PLLCFGR_PLLPDIV_Pos)) ||
-  #else /* RCC_PLLP_DIV_2_31_SUPPORT */
-					(READ_BIT(pll_config, RCC_PLLCFGR_PLLP) != ((RCC_OscInitStruct->PLL.PLLP == RCC_PLLP_DIV7) ? 0U : 1U)) ||
-  #endif /* !RCC_PLLP_DIV_2_31_SUPPORT */
+		assert_param(IS_RCC_PLLP_VALUE(RCC_OscInitStruct->PLL.PLLP));
 #endif /* RCC_PLLP_SUPPORT */
-					(READ_BIT(pll_config, RCC_PLLCFGR_PLLQ) != ((((RCC_OscInitStruct->PLL.PLLQ) >> 1U) - 1U) << RCC_PLLCFGR_PLLQ_Pos)) ||
-					(READ_BIT(pll_config, RCC_PLLCFGR_PLLR) != ((((RCC_OscInitStruct->PLL.PLLR) >> 1U) - 1U) << RCC_PLLCFGR_PLLR_Pos))) {
-				/* Check if the PLL is used as system clock or not */
-				if (sysclk_source == RCC_CFGR_SWS_PLL) {
-					/* PLL is already used as System core clock */
-					return HAL_ERROR;
-				}
+		assert_param(IS_RCC_PLLQ_VALUE(RCC_OscInitStruct->PLL.PLLQ));
+		assert_param(IS_RCC_PLLR_VALUE(RCC_OscInitStruct->PLL.PLLR));
+
+		/* Do nothing if PLL configuration is unchanged */
+		pll_config = RCC->PLLCFGR;
+		if((READ_BIT(pll_config, RCC_PLLCFGR_PLLSRC) != RCC_OscInitStruct->PLL.PLLSource) ||
+				(READ_BIT(pll_config, RCC_PLLCFGR_PLLM) != ((RCC_OscInitStruct->PLL.PLLM - 1U) << RCC_PLLCFGR_PLLM_Pos)) ||
+				(READ_BIT(pll_config, RCC_PLLCFGR_PLLN) != (RCC_OscInitStruct->PLL.PLLN << RCC_PLLCFGR_PLLN_Pos)) ||
+#if defined(RCC_PLLP_SUPPORT)
+#if defined(RCC_PLLP_DIV_2_31_SUPPORT)
+				(READ_BIT(pll_config, RCC_PLLCFGR_PLLPDIV) != (RCC_OscInitStruct->PLL.PLLP << RCC_PLLCFGR_PLLPDIV_Pos)) ||
+#else /* RCC_PLLP_DIV_2_31_SUPPORT */
+				(READ_BIT(pll_config, RCC_PLLCFGR_PLLP) != ((RCC_OscInitStruct->PLL.PLLP == RCC_PLLP_DIV7) ? 0U : 1U)) ||
+#endif /* !RCC_PLLP_DIV_2_31_SUPPORT */
+#endif /* RCC_PLLP_SUPPORT */
+				(READ_BIT(pll_config, RCC_PLLCFGR_PLLQ) != ((((RCC_OscInitStruct->PLL.PLLQ) >> 1U) - 1U) << RCC_PLLCFGR_PLLQ_Pos)) ||
+				(READ_BIT(pll_config, RCC_PLLCFGR_PLLR) != ((((RCC_OscInitStruct->PLL.PLLR) >> 1U) - 1U) << RCC_PLLCFGR_PLLR_Pos))) {
+
+			/* Check if the PLL is used as system clock or not */
+			if (sysclk_source == RCC_CFGR_SWS_PLL) {
+				/* PLL is already used as System core clock */
+				return HAL_ERROR;
+			}
 
 #if defined(RCC_PLLSAI1_SUPPORT) || defined(RCC_PLLSAI2_SUPPORT)
-				/* Check if main PLL can be updated */
-				/* Not possible if the source is shared by other enabled PLLSAIx */
-				if (HAL_IS_BIT_SET(RCC->CR, RCC_CR_PLLSAI1ON)
-  #if defined(RCC_PLLSAI2_SUPPORT)
-						|| HAL_IS_BIT_SET(RCC->CR, RCC_CR_PLLSAI2ON)
-  #endif /* RCC_PLLSAI2_SUPPORT */
-						) {
-					return HAL_ERROR;
-				}
+			/* Check if main PLL can be updated */
+			/* Not possible if the source is shared by other enabled PLLSAIx */
+			if (HAL_IS_BIT_SET(RCC->CR, RCC_CR_PLLSAI1ON)
+#if defined(RCC_PLLSAI2_SUPPORT)
+					|| HAL_IS_BIT_SET(RCC->CR, RCC_CR_PLLSAI2ON)
+#endif /* RCC_PLLSAI2_SUPPORT */
+					) {
+				return HAL_ERROR;
+			}
 #endif /* RCC_PLLSAI1_SUPPORT || RCC_PLLSAI2_SUPPORT */
 
-				/* Disable the main PLL. */
-				__HAL_RCC_PLL_DISABLE();
-
-				/* Get Start Tick*/
-				tickstart = HAL_GetTick();
-
-				/* Wait till PLL is ready */
-				while (HAL_IS_BIT_SET(RCC->CR, RCC_CR_PLLRDY)) {
-					if((HAL_GetTick() - tickstart) > PLL_TIMEOUT_VALUE) {
-						return HAL_TIMEOUT;
-					}
-				}
-
-				/* Configure the main PLL clock source, multiplication and division factors. */
-				__HAL_RCC_PLL_CONFIG(RCC_OscInitStruct->PLL.PLLSource,
-							RCC_OscInitStruct->PLL.PLLM,
-							RCC_OscInitStruct->PLL.PLLN,
-#if defined(RCC_PLLP_SUPPORT)
-							RCC_OscInitStruct->PLL.PLLP,
-#endif /* RCC_PLLP_SUPPORT */
-							RCC_OscInitStruct->PLL.PLLQ,
-							RCC_OscInitStruct->PLL.PLLR);
-			} else if (HAL_IS_BIT_SET(RCC->CR, RCC_CR_PLLRDY)) {
-				/* PLL configuration is unchanged and PLL is ON*/
-				return HAL_OK;
-			}
-			/* else was disabled (ie. low power mode) so re-enable it */
-
-			/* Enable the main PLL. */
-			__HAL_RCC_PLL_ENABLE();
-
-			/* Enable PLL System Clock output. */
-			__HAL_RCC_PLLCLKOUT_ENABLE(RCC_PLL_SYSCLK);
+			/* Disable the main PLL. */
+			__HAL_RCC_PLL_DISABLE();
 
 			/* Get Start Tick*/
 			tickstart = HAL_GetTick();
 
 			/* Wait till PLL is ready */
-			while (HAL_IS_BIT_CLR(RCC->CR, RCC_CR_PLLRDY)) {
+			while (HAL_IS_BIT_SET(RCC->CR, RCC_CR_PLLRDY)) {
 				if((HAL_GetTick() - tickstart) > PLL_TIMEOUT_VALUE) {
 					return HAL_TIMEOUT;
 				}
+			}
+
+			/* Configure the main PLL clock source, multiplication and division factors. */
+			__HAL_RCC_PLL_CONFIG(RCC_OscInitStruct->PLL.PLLSource,
+						RCC_OscInitStruct->PLL.PLLM,
+						RCC_OscInitStruct->PLL.PLLN,
+#if defined(RCC_PLLP_SUPPORT)
+						RCC_OscInitStruct->PLL.PLLP,
+#endif /* RCC_PLLP_SUPPORT */
+						RCC_OscInitStruct->PLL.PLLQ,
+						RCC_OscInitStruct->PLL.PLLR);
+		} else if (HAL_IS_BIT_SET(RCC->CR, RCC_CR_PLLRDY)) {
+			/* PLL configuration is unchanged and PLL is ON*/
+			return HAL_OK;
+		}
+		/* else was disabled (ie. low power mode) so re-enable it */
+
+		/* Enable the main PLL. */
+		__HAL_RCC_PLL_ENABLE();
+
+		/* Enable PLL System Clock output. */
+		__HAL_RCC_PLLCLKOUT_ENABLE(RCC_PLL_SYSCLK);
+
+		/* Get Start Tick*/
+		tickstart = HAL_GetTick();
+
+		/* Wait till PLL is ready */
+		while (HAL_IS_BIT_CLR(RCC->CR, RCC_CR_PLLRDY)) {
+			if((HAL_GetTick() - tickstart) > PLL_TIMEOUT_VALUE) {
+				return HAL_TIMEOUT;
 			}
 		}
 
 		return HAL_OK;
 	}
+
+	/* PLL Off */
 
 	/* Check that PLL is not used as system clock or not */
 	if (sysclk_source == RCC_CFGR_SWS_PLL) {
