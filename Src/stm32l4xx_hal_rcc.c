@@ -388,7 +388,7 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
 HAL_StatusTypeDef HAL_Custom_RCC_MSIConfig(RCC_OscInitTypeDef *RCC_OscInitStruct) {
 	uint32_t sysclk_source;
 	uint32_t pll_config;
-	int turn_off = RCC_OscInitStruct->HSEState == RCC_MSI_OFF;
+	int turn_off = RCC_OscInitStruct->MSIState == RCC_MSI_OFF;
 
 	/* Check the parameters */
 	assert_param(IS_RCC_MSI(RCC_OscInitStruct->MSIState));
