@@ -262,7 +262,7 @@ static uint32_t          RCC_GetSysClockFreqFromPLLSource(void);
   *            - LSI, LSE and RTC clocks (Backup domain)
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_RCC_DeInit(void)
+HAL_StatusTypeDef HAL_RCC_DeInit(enum reset_reset_action rra)
 {
   uint32_t tickstart;
 
@@ -380,7 +380,9 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
   WRITE_REG(RCC->CICR, 0xFFFFFFFFU);
 
   /* Clear all reset flags */
-  SET_BIT(RCC->CSR, RCC_CSR_RMVF);
+  if (rra == RESET_REASON_ACTION_CLEAR) {
+    SET_BIT(RCC->CSR, RCC_CSR_RMVF);
+  }
 
   return HAL_OK;
 }

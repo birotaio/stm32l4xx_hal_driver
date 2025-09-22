@@ -4832,7 +4832,11 @@ typedef struct
   */
 
 /* Initialization and de-initialization functions  ******************************/
-HAL_StatusTypeDef HAL_RCC_DeInit(void);
+enum reset_reset_action {
+	RESET_REASON_ACTION_KEEP = 0,
+	RESET_REASON_ACTION_CLEAR
+};
+HAL_StatusTypeDef HAL_RCC_DeInit(enum reset_reset_action rra);
 HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef *RCC_ClkInitStruct, uint32_t FLatency);
 
 /* Try not to use this function, it is actually super heavy. Prefer the custom alternatives, in this order */
